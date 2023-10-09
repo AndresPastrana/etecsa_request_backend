@@ -1,0 +1,7 @@
+test
+node_modules
+.vscode
+config.env
+*.log
+*.lock
+build
