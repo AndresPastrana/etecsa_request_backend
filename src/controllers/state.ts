@@ -3,6 +3,29 @@ import { matchedData } from "express-validator";
 import { handleResponse } from "../middleware/index.js";
 import { ModelState } from "../models/index.js";
 
+const getStatesByProvinceId = async (req: Request, res: Response) => {
+	try {
+		const { provinceId } = matchedData(req, { locations: ["query"] });
+
+		const states = await ModelState.find({ province: provinceId });
+
+		handleResponse({
+			statusCode: 200,
+			msg: "States retrieved successfully for the specified Province",
+			data: states,
+			res,
+		});
+	} catch (error) {
+		// Handle any errors that occur during retrieval
+		handleResponse({
+			statusCode: 500,
+			msg: "Internal Server Error",
+			error,
+			res,
+		});
+	}
+};
+
 // Create a new State
 //  const createState = async (req: Request, res: Response) => {
 // 	try {
@@ -32,56 +55,56 @@ import { ModelState } from "../models/index.js";
 
 // NOTE This endpoint is just for development propurses
 // Insert multiple states belonging to the same province
-export const insertStates = async (req: Request, res: Response) => {
-	try {
-		const { states, provinceId } = matchedData(req, {
-			locations: ["body", "query"],
-		});
+// export const insertStates = async (req: Request, res: Response) => {
+// 	try {
+// 		const { states, provinceId } = matchedData(req, {
+// 			locations: ["body", "query"],
+// 		});
 
-		const uniqueStateNames = new Set(states as Array<string>);
+// 		const uniqueStateNames = new Set(states as Array<string>);
 
-		const uniqueStateNamesArray = Array.from(uniqueStateNames);
+// 		const uniqueStateNamesArray = Array.from(uniqueStateNames);
 
-		const stateDocs = uniqueStateNamesArray.map((stateName) => ({
-			name: stateName,
-			province: provinceId,
-		}));
+// 		const stateDocs = uniqueStateNamesArray.map((stateName) => ({
+// 			name: stateName,
+// 			province: provinceId,
+// 		}));
 
-		// TODO: Verify that any of this states is not in the database
-		const repitedStates = ModelState.findOne({
-			$and: [
-				{ province: provinceId },
-				{ name: { $in: uniqueStateNamesArray } },
-			],
-		});
+// 		// TODO: Verify that any of this states is not in the database
+// 		const repitedStates = ModelState.findOne({
+// 			$and: [
+// 				{ province: provinceId },
+// 				{ name: { $in: uniqueStateNamesArray } },
+// 			],
+// 		});
 
-		if (repitedStates) {
-			return handleResponse({
-				res,
-				statusCode: 400,
-				msg: "State already exists",
-				error: repitedStates,
-			});
-		}
+// 		if (repitedStates) {
+// 			return handleResponse({
+// 				res,
+// 				statusCode: 400,
+// 				msg: "State already exists",
+// 				error: repitedStates,
+// 			});
+// 		}
 
-		const insertedStates = await ModelState.insertMany(stateDocs);
+// 		const insertedStates = await ModelState.insertMany(stateDocs);
 
-		handleResponse({
-			statusCode: 201,
-			msg: "States inserted successfully",
-			data: insertedStates,
-			res,
-		});
-	} catch (error) {
-		// Handle any errors that occur during insertion
-		handleResponse({
-			statusCode: 500,
-			msg: "Internal Server Error",
-			error,
-			res,
-		});
-	}
-};
+// 		handleResponse({
+// 			statusCode: 201,
+// 			msg: "States inserted successfully",
+// 			data: insertedStates,
+// 			res,
+// 		});
+// 	} catch (error) {
+// 		// Handle any errors that occur during insertion
+// 		handleResponse({
+// 			statusCode: 500,
+// 			msg: "Internal Server Error",
+// 			error,
+// 			res,
+// 		});
+// 	}
+// };
 
 // Get all States
 //  const getAllStates = async (req: Request, res: Response) => {
@@ -134,30 +157,6 @@ export const insertStates = async (req: Request, res: Response) => {
 // 		});
 // 	}
 // };
-
-//  Get all States belonging to a specific Province
-const getStatesByProvinceId = async (req: Request, res: Response) => {
-	try {
-		const { provinceId } = matchedData(req, { locations: ["query"] });
-
-		const states = await ModelState.find({ province: provinceId });
-
-		handleResponse({
-			statusCode: 200,
-			msg: "States retrieved successfully for the specified Province",
-			data: states,
-			res,
-		});
-	} catch (error) {
-		// Handle any errors that occur during retrieval
-		handleResponse({
-			statusCode: 500,
-			msg: "Internal Server Error",
-			error,
-			res,
-		});
-	}
-};
 
 // Update a State by ID
 //  const updateStateById = async (req: Request, res: Response) => {
@@ -229,5 +228,4 @@ const getStatesByProvinceId = async (req: Request, res: Response) => {
 
 export const StateController = {
 	getStatesByProvinceId,
-	insertStates,
 };

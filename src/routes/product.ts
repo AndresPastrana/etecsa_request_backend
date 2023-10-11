@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { body, param } from "express-validator";
-import { Types } from "mongoose";
+import { isValidObjectId, Types } from "mongoose";
 import { ProductController } from "../controllers/index.js";
 import { UserRole } from "./../const.js";
 import {
@@ -10,16 +10,41 @@ import {
 } from "./../middleware/index.js";
 export const router = Router();
 
-const authValidations = [isValidToken];
+const authValidations = [
+	isValidToken,
+	protectRouteByRole([UserRole.SPECIALIST]),
+];
 
 const createOrUpdateValidationRules = [
-	body("code").trim().notEmpty().withMessage("Code is required").isString(),
-	body("name").trim().notEmpty().withMessage("Name is required").isString(),
-	body("price").isNumeric().withMessage("Price must be a number"),
-	body("availableQuantity")
-		.optional()
+	body("code")
+		.exists()
+		.withMessage("code is required")
+		.trim()
+		.notEmpty()
+		.withMessage("code not must be empty")
+		.isString()
+		.withMessage("code  must be a string")
+		.escape(),
+	body("name")
+		.exists()
+		.withMessage("name is required")
+		.trim()
+		.notEmpty()
+		.withMessage("name not must be empty")
+		.isString()
+		.withMessage("name  must be a string")
+		.escape(),
+	body("price")
+		.exists()
+		.withMessage("price is required")
 		.isNumeric()
-		.withMessage("Available quantity must be a number"),
+		.withMessage("Price must be a number"),
+	body("aviableQuantity")
+		.optional()
+		.exists()
+		.withMessage("aviableQuantity is required")
+		.isNumeric()
+		.withMessage("aviableQuantity must be a number"),
 	validateRequest,
 ];
 
@@ -30,16 +55,13 @@ const paramIdValidations = [
 		.withMessage("ID is required")
 		.isMongoId()
 		.withMessage("ID must be a valid ObjectId")
+		.if((value) => isValidObjectId(value))
 		.customSanitizer((id) => new Types.ObjectId(id)),
 ];
 
 router.post(
-	"/",
-	[
-		...authValidations,
-		protectRouteByRole([UserRole.SPECIALIST]),
-		...createOrUpdateValidationRules,
-	],
+	"/create",
+	[...authValidations, ...createOrUpdateValidationRules],
 	ProductController.createProduct,
 );
 router.get(
@@ -54,7 +76,7 @@ router.get(
 router.get(
 	"/:id",
 	[
-		...authValidations,
+		authValidations[0],
 		protectRouteByRole([UserRole.HEAD_OF_DEPARTMENT, UserRole.SPECIALIST]),
 		...paramIdValidations,
 		validateRequest,
@@ -63,21 +85,11 @@ router.get(
 );
 router.put(
 	"/:id",
-	[
-		...authValidations,
-		protectRouteByRole([UserRole.SPECIALIST]),
-		...paramIdValidations,
-		...createOrUpdateValidationRules,
-	],
+	[...authValidations, ...paramIdValidations, ...createOrUpdateValidationRules],
 	ProductController.updateProductById,
 );
 router.delete(
 	"/:id",
-	[
-		...authValidations,
-		protectRouteByRole([UserRole.SPECIALIST]),
-		...paramIdValidations,
-		validateRequest,
-	],
+	[...authValidations, ...paramIdValidations, validateRequest],
 	ProductController.deleteProductById,
 );

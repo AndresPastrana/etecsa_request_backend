@@ -1,11 +1,6 @@
 import jwt from "jsonwebtoken/index.js";
-import { UserRole } from "../types.js";
+import { Payload } from "../types.js";
 const { sign } = jwt;
-
-type Payload = {
-	role: UserRole;
-	uid: string;
-};
 
 // Function to create and sign a JWT
 export function createJWTAsync(payload: Payload) {

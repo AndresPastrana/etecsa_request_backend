@@ -5,9 +5,7 @@ import { ModelDestiny } from "../models/index.js";
 // Create a new Destiny
 const createDestiny = async (req: Request, res: Response) => {
 	try {
-		// Extract and validate the data using matchedData
 		const { code, description, state } = matchedData(req);
-
 		const repeatedDestiny = await ModelDestiny.findOne({
 			$or: [{ code }, { description }],
 		});
@@ -16,14 +14,10 @@ const createDestiny = async (req: Request, res: Response) => {
 			return handleResponse({
 				res,
 				statusCode: 400,
-				msg: "Theres alredy a destiny with this code or description",
+				msg: `Theres alredy a destiny with this code or description code: ${code} description: ${description}`,
 			});
 		}
-
-		// Create a new Destiny document
 		const newDestiny = await ModelDestiny.create({ code, description, state });
-
-		// Use the "handleResponse" function to handle the response
 		handleResponse({
 			statusCode: 201,
 			msg: "Destiny created successfully",
@@ -31,7 +25,6 @@ const createDestiny = async (req: Request, res: Response) => {
 			res,
 		});
 	} catch (error) {
-		// Handle any errors that occur during creation
 		handleResponse({
 			statusCode: 500,
 			msg: "Internal Server Error",
@@ -44,10 +37,8 @@ const createDestiny = async (req: Request, res: Response) => {
 // Get all Destinies
 const getAllDestinies = async (req: Request, res: Response) => {
 	try {
-		// Fetch all Destiny documents from the database
-		const allDestinies = await ModelDestiny.find();
+		const allDestinies = await ModelDestiny.find({});
 
-		// Use the "handleResponse" function to handle the response
 		handleResponse({
 			statusCode: 200,
 			msg: "All Destiny documents retrieved successfully",
@@ -55,11 +46,10 @@ const getAllDestinies = async (req: Request, res: Response) => {
 			res,
 		});
 	} catch (error) {
-		// Handle any errors that occur during retrieval
 		handleResponse({
 			statusCode: 500,
 			msg: "Internal Server Error",
-			error: error.message,
+			error,
 			res,
 		});
 	}
@@ -100,11 +90,12 @@ const getDestinyById = async (req: Request, res: Response) => {
 // Update a Destiny by ID
 const updateDestinyById = async (req: Request, res: Response) => {
 	try {
-		// Extract and validate the data using matchedData
-		const { code, description, id } = matchedData(req);
+		const { code, description, state, id } = matchedData(req, {
+			locations: ["body", "params"],
+		});
 
 		const destinyWithSameCode = await ModelDestiny.findOne({
-			$and: [{ code }, { _id: { $ne: id } }],
+			$and: [{ $or: [{ code }, { description }] }, { _id: { $ne: id } }],
 		});
 
 		if (destinyWithSameCode) {
@@ -116,7 +107,6 @@ const updateDestinyById = async (req: Request, res: Response) => {
 			});
 		}
 
-		// Find and update a Destiny document by ID
 		const updatedDestiny = await ModelDestiny.findByIdAndUpdate(
 			id,
 			{ code, description },
@@ -157,6 +147,7 @@ const deleteDestinyById = async (req: Request, res: Response) => {
 		// Find and delete a Destiny document by ID
 		const deletedDestiny = await ModelDestiny.findByIdAndDelete(id);
 
+		// Thid code is not necesary, we made this validation in the paramIdValidationMiddleware in the router
 		if (!deletedDestiny) {
 			return handleResponse({
 				statusCode: 404,

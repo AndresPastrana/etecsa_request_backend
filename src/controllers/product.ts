@@ -18,7 +18,7 @@ const createProduct = async (req: Request, res: Response) => {
 		if (existingProduct) {
 			return handleResponse({
 				statusCode: 400,
-				msg: "A product with this code or name already exists.",
+				msg: `A product with this code or name already exists. code:${code} name:${name}`,
 				res,
 			});
 		}
@@ -72,7 +72,7 @@ const getAllProducts = async (req: Request, res: Response) => {
 const getProductById = async (req: Request, res: Response) => {
 	try {
 		// We assume that the id alredy is an ObjectID
-		const { id } = matchedData(req, { locations: ["query"] });
+		const { id } = matchedData(req, { locations: ["params"] });
 		const product = await ModelProduct.findById(id);
 
 		if (!product) {
@@ -98,7 +98,7 @@ const getProductById = async (req: Request, res: Response) => {
 // Update a product by ID
 const updateProductById = async (req: Request, res: Response) => {
 	try {
-		const { code, name, price, availableQuantity, id } = matchedData(req, {
+		const { code, name, price, aviableQuantity, id } = matchedData(req, {
 			locations: ["body", "params"],
 		});
 
@@ -112,7 +112,7 @@ const updateProductById = async (req: Request, res: Response) => {
 		if (existingProduct) {
 			return handleResponse({
 				statusCode: 400,
-				msg: "A product with this code or name already exists.",
+				msg: `A product with this code or name already exists. code: ${code}, name: ${name}`,
 				res,
 			});
 		}
@@ -123,7 +123,7 @@ const updateProductById = async (req: Request, res: Response) => {
 				code,
 				name,
 				price,
-				availableQuantity,
+				aviableQuantity,
 			},
 			{ new: true },
 		);

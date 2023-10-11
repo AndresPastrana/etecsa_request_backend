@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { body, param } from "express-validator";
-import { Types } from "mongoose";
+import { isValidObjectId, Types } from "mongoose";
 import { UserRole } from "../const.js";
 import { DepartamentController } from "../controllers/index.js";
 import {
@@ -14,18 +14,24 @@ const authValidator = [isValidToken, protectRouteByRole([UserRole.SPECIALIST])];
 // Validation and sanitization middleware for createDepartament
 const createDepartamentValidationMiddleware = [
 	body("ccosto")
+		.exists()
+		.withMessage("ccosto is required")
 		.trim()
 		.escape()
 		.isMongoId()
 		.withMessage("Invalid CCosto ID")
+		.if((value) => isValidObjectId(value))
 		.customSanitizer((value) => new Types.ObjectId(value)),
 
 	body("descripcion")
+		.exists()
+		.withMessage("descripcion is required")
 		.trim()
 		.escape()
 		.isString()
+		.withMessage("descripcion must be a string")
 		.notEmpty()
-		.withMessage("Descripcion is required"),
+		.withMessage("Descripcion not must be empty"),
 	validateRequest,
 ];
 
@@ -35,6 +41,7 @@ const paramIdDepartamentValidationMiddleware = [
 		.escape()
 		.isMongoId()
 		.withMessage("Invalid Departament ID")
+		.if((value) => isValidObjectId(value))
 		.customSanitizer((value) => new Types.ObjectId(value)),
 ];
 

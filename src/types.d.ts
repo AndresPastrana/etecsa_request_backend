@@ -34,7 +34,7 @@ interface IUser extends Document {
 	role: UserRole;
 	firstName: string;
 	lastName: string;
-	departamento?: Schema.Types.ObjectId; // Optional department ID
+	departament?: Schema.Types.ObjectId; // Optional department ID
 	isValidPassword: (password: string) => Promise<boolean>;
 }
 
@@ -58,4 +58,19 @@ interface IRequest extends Document {
 	status: RequestStatus;
 	aprovedBy?: Schema.Types.ObjectId; // Optional reference to User
 	createdAt: Date;
+	updatedAt: Date;
 }
+
+type PiplineEntry = {
+	_id: RequestStatus;
+	count: number;
+};
+
+type RequestCounter = {
+	[status in RequestStatus]: number;
+};
+
+type Payload = {
+	role: UserRole;
+	uid: string;
+};

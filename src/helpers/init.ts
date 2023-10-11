@@ -4,12 +4,15 @@ import morgan from "morgan";
 import { Server } from "node:http";
 import { Routes } from "../const.js";
 import {
+	AuthRouter,
 	CCostoRouter,
 	DepartamentRouter,
 	DestinyRouter,
 	ProductRouter,
 	ProvinceRouter,
+	RequestRouter,
 	StateRouter,
+	UserRouter,
 } from "../routes/index.routes.js";
 export function gracefulShutdown(server: Server) {
 	console.log("Received shutdown signal. Shutting down gracefully...");
@@ -44,6 +47,7 @@ export function defineMiddlewares(app: Application) {
 	app.use(Routes.product, ProductRouter);
 	app.use(Routes.states, StateRouter);
 	app.use(Routes.province, ProvinceRouter);
-	// app.use(Routes.state, StateRouter);
-	// app.use(Routes.report, ReportRouter);
+	app.use(Routes.auth, AuthRouter);
+	app.use(Routes.user, UserRouter);
+	app.use(Routes.request, RequestRouter);
 }

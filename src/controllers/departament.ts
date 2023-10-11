@@ -1,13 +1,37 @@
 import { Request, Response } from "express";
 import { matchedData } from "express-validator";
 import { handleResponse } from "./../middleware/index.js";
-import { ModelDepartament } from "./../models/index.js";
+import { ModelCCosto, ModelDepartament } from "./../models/index.js";
 
 // Create a new Departament
 const createDepartament = async (req: Request, res: Response) => {
 	try {
 		// Extract and validate the data using matchedData
 		const data = matchedData(req);
+		const existcCosto = await ModelCCosto.findById(data.ccosto);
+
+		if (!existcCosto) {
+			return handleResponse({
+				res,
+				statusCode: 404,
+				error: true,
+				msg: "cccosto not found",
+			});
+		}
+
+		// Check for a departamanet with the same ccosto
+		const existDpto = await ModelDepartament.findOne({
+			$or: [{ ccosto: existcCosto._id }, { descripcion: data.descripcion }],
+		});
+
+		if (existDpto) {
+			return handleResponse({
+				res,
+				statusCode: 404,
+				error: `Alredy exist a departamnet with the same ccosto or descripcion. ccosto:${data.ccosto} descripcion:${data.descripcion}`,
+			});
+		}
+
 		const newDepartament = await ModelDepartament.create(data);
 
 		handleResponse({
@@ -27,13 +51,40 @@ const createDepartament = async (req: Request, res: Response) => {
 };
 
 // Update a Departament by ID
-export const updateDepartamentById = async (req: Request, res: Response) => {
+const updateDepartamentById = async (req: Request, res: Response) => {
 	try {
 		const { id, ...rest } = matchedData(req, { locations: ["body", "params"] });
 
+		const existcCosto = await ModelCCosto.findById(rest.ccosto);
+
+		if (!existcCosto) {
+			return handleResponse({
+				res,
+				statusCode: 404,
+				error: true,
+				msg: "cccosto not found",
+			});
+		}
+
+		// Check for a departament with the same ccost and descrition que no sea el mismo
+		const existDpto = await ModelDepartament.findOne({
+			$and: [
+				{ $or: [{ ccosto: rest.ccost }, { descripcion: rest.descripcion }] },
+				{ _id: { $ne: id } },
+			],
+		});
+
+		if (existDpto) {
+			return handleResponse({
+				res,
+				statusCode: 404,
+				error: `Alredy exist a departamnet with the same ccosto or descripcion. ccosto:${data.ccosto} descripcion:${data.descripcion}`,
+			});
+		}
+
 		const updatedDepartament = await ModelDepartament.findByIdAndUpdate(
 			id,
-			rest,
+			{ ...rest },
 			{ new: true },
 		);
 
@@ -44,10 +95,8 @@ export const updateDepartamentById = async (req: Request, res: Response) => {
 				res,
 			});
 		}
-
-		// Use the "handleResponse" function to handle the response
 		handleResponse({
-			statusCode: 200,
+			statusCode: 201,
 			msg: "Departament updated successfully",
 			data: updatedDepartament,
 			res,
@@ -88,6 +137,8 @@ const getAllDepartaments = async (req: Request, res: Response) => {
 const getDepartamentById = async (req: Request, res: Response) => {
 	try {
 		const { id } = matchedData(req, { locations: ["params"] });
+
+		//    TODO: Only the of departament can get the info of his Departament
 
 		// Find a Departament document by ID and populate the "ccosto" field
 		const departament = await ModelDepartament.findById(id).populate("ccosto");

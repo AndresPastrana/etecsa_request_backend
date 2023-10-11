@@ -1,5 +1,4 @@
 import { HydratedDocument, model, Schema } from "mongoose";
-import { transformDocument } from "../helpers/index.js";
 import { IDepartament } from "../types.js";
 const SchemaDepartament = new Schema<IDepartament>(
 	{
@@ -9,7 +8,8 @@ const SchemaDepartament = new Schema<IDepartament>(
 	{
 		methods: {
 			toJSON: function (this: HydratedDocument<IDepartament>) {
-				return transformDocument(this.toObject());
+				const { __v, _id, ...rest } = this.toObject();
+				return { id: _id, ...rest };
 			},
 		},
 	},

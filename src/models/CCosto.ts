@@ -1,5 +1,4 @@
 import { HydratedDocument, model, Schema } from "mongoose";
-import { transformDocument } from "../helpers/index.js";
 import { ICCosto } from "../types.js";
 
 const SchemaCCosto = new Schema<ICCosto>(
@@ -15,7 +14,8 @@ const SchemaCCosto = new Schema<ICCosto>(
 	{
 		methods: {
 			toJSON: function (this: HydratedDocument<ICCosto>) {
-				return transformDocument(this.toObject());
+				const { __v, _id, ...rest } = this.toObject();
+				return { id: _id, ...rest };
 			},
 		},
 	},

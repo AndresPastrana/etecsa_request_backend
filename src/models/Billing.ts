@@ -1,5 +1,4 @@
 import { HydratedDocument, model, Schema } from "mongoose";
-import { transformDocument } from "../helpers/index.js";
 import { IBilling } from "../types.js";
 
 const SchemaBilling = new Schema<IBilling>(
@@ -17,7 +16,8 @@ const SchemaBilling = new Schema<IBilling>(
 	{
 		methods: {
 			toJSON: function (this: HydratedDocument<IBilling>) {
-				return transformDocument(this.toObject());
+				const { __v, _id, ...rest } = this.toObject();
+				return { id: _id, ...rest };
 			},
 		},
 	},
