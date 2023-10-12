@@ -2,11 +2,13 @@ import { Request, Response } from "express";
 import { matchedData } from "express-validator";
 import { Schema } from "mongoose";
 import { RequestStatus } from "../const.js";
+import { createDoc } from "../helpers/createDoc.js";
 import { calculateTotalImport } from "../helpers/index.js";
 import { PiplineEntry, RequestCounter } from "../types.js";
 import { UserRole } from "./../const.js";
 import { handleResponse } from "./../middleware/index.js";
 import { ModelIBilling, ModelRequest, ModelUser } from "./../models/index.js";
+
 // Create a new request
 const createRequest = async (
 	req: Request & {
@@ -267,23 +269,32 @@ const generatePdf = async (req: Request, res: Response) => {
 		const request = await ModelRequest.findById(id).populate([
 			"departament",
 			"destiny",
+			"aprovedBy",
 		]);
 
 		if (request) {
-			console.log("Hereee");
-
-			return handleResponse({
-				res,
-				data: request,
-				statusCode: 200,
+			// Extract the info to show in the dpf
+			// TODO: fix this type error
+			const ID = request?.id;
+			const status = request?.status;
+			const department = request?.departament?.descripcion as string;
+			const destiny = request?.destiny?.description as string;
+			const aprovedBy = request?.aprovedBy?.firstName;
+			const pdfFileName = "request.pdf";
+			const doc = await createDoc({
+				filename: pdfFileName,
+				data: { ID, status, department, destiny, aprovedBy },
 			});
-		}
 
-		return handleResponse({
-			res,
-			error: "Request not found",
-			statusCode: 404,
-		});
+			// Set the response headers to send the PDF to the browser
+			res.setHeader("Content-Type", "application/pdf");
+			res.setHeader("Content-Disposition", "attachment; filename=example.pdf");
+
+			// Stream the PDF to the client
+			doc.pipe(res);
+
+			return;
+		}
 	} catch (error) {
 		return handleResponse({
 			res,

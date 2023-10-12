@@ -17,8 +17,8 @@
     "express": "^4.18.2",
     "express-validator": "7.0.1",
     "jsonwebtoken": "9.0.2",
-    "jspdf": "^2.5.1",
-    "mongoose": "^7.5.3"
+    "mongoose": "^7.5.3",
+    "pdfkit": "^0.13.0"
   },
   "devDependencies": {
     "@swc/cli": "^0.1.62",
@@ -30,7 +30,7 @@
     "@types/mongoose": "^5.11.97",
     "@types/morgan": "^1.9.6",
     "@types/node": "^20.8.0",
-    "concurrently": "^8.2.1",
+    "@types/pdfkit": "^0.12.12",
     "morgan": "^1.10.0",
     "nodemon": "^3.0.1",
     "rome": "12.1.3",
