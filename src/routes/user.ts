@@ -127,6 +127,15 @@ router.post(
 	UserController.createUser,
 );
 router.get(
+	"/by-role",
+	[
+		...authValidatonMiddlewares,
+		...getUsersByRoleValidationMiddleware,
+		validateRequest,
+	],
+	UserController.getUsersByRole,
+);
+router.get(
 	"/:id",
 	[
 		authValidatonMiddlewares[0],
@@ -154,14 +163,6 @@ router.delete(
 	],
 	UserController.deleteUserById,
 );
-router.get(
-	"/by-role",
-	[
-		...authValidatonMiddlewares,
-		...getUsersByRoleValidationMiddleware,
-		validateRequest,
-	],
-	UserController.getUsersByRole,
-);
+
 
 export default router;

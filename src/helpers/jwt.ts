@@ -6,7 +6,7 @@ const { sign } = jwt;
 export function createJWTAsync(payload: Payload) {
 	return new Promise((resolve, reject) => {
 		const options = {
-			expiresIn: "10h", // Token expiration time (you can adjust this as needed)
+			expiresIn: "24h", // Token expiration time (you can adjust this as needed)
 		};
 		const SECRET_KEY = process.env.SECRET_KEY || "";
 		// Create and sign the token

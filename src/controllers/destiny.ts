@@ -18,10 +18,13 @@ const createDestiny = async (req: Request, res: Response) => {
 			});
 		}
 		const newDestiny = await ModelDestiny.create({ code, description, state });
+
+
+		const populated = await newDestiny.populate('state')
 		handleResponse({
 			statusCode: 201,
 			msg: "Destiny created successfully",
-			data: newDestiny,
+			data: populated,
 			res,
 		});
 	} catch (error) {
@@ -37,7 +40,7 @@ const createDestiny = async (req: Request, res: Response) => {
 // Get all Destinies
 const getAllDestinies = async (req: Request, res: Response) => {
 	try {
-		const allDestinies = await ModelDestiny.find({});
+		const allDestinies = await ModelDestiny.find({}).populate('state');
 
 		handleResponse({
 			statusCode: 200,
@@ -61,7 +64,7 @@ const getDestinyById = async (req: Request, res: Response) => {
 		const { id } = matchedData(req, { locations: ["params"] });
 
 		// Find a Destiny document by ID
-		const destiny = await ModelDestiny.findById(id);
+		const destiny = await ModelDestiny.findById(id).populate('state');
 
 		if (!destiny) {
 			return handleResponse({
@@ -109,7 +112,7 @@ const updateDestinyById = async (req: Request, res: Response) => {
 
 		const updatedDestiny = await ModelDestiny.findByIdAndUpdate(
 			id,
-			{ code, description },
+			{ code, description,state },
 			{
 				new: true,
 			},
@@ -122,11 +125,11 @@ const updateDestinyById = async (req: Request, res: Response) => {
 				res,
 			});
 		}
-
+        const populated = await updatedDestiny.populate('state')
 		handleResponse({
 			statusCode: 200,
 			msg: "Destiny updated successfully",
-			data: updatedDestiny,
+			data: populated,
 			res,
 		});
 	} catch (error) {
@@ -155,12 +158,12 @@ const deleteDestinyById = async (req: Request, res: Response) => {
 				res,
 			});
 		}
-
+         const populted = await deletedDestiny.populate('state')
 		// Use the "handleResponse" function to handle the response
 		handleResponse({
 			statusCode: 200,
 			msg: "Destiny deleted successfully",
-			data: deletedDestiny,
+			data: populted,
 			res,
 		});
 	} catch (error) {

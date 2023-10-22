@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { body, param, query } from "express-validator";
-import { isValidObjectId, Types } from "mongoose";
+import { Types, isValidObjectId } from "mongoose";
 import {
 	ModelDepartament,
 	ModelDestiny,
@@ -139,6 +139,9 @@ const getByStatusValidator = [
 		.customSanitizer((departament) => new Types.ObjectId(departament))
 		.optional(),
 ];
+
+
+// 	Routes
 router.put(
 	"/aprove/:id",
 	[

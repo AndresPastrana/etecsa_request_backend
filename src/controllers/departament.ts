@@ -33,11 +33,12 @@ const createDepartament = async (req: Request, res: Response) => {
 		}
 
 		const newDepartament = await ModelDepartament.create(data);
+		const populated = await newDepartament.populate('ccosto')
 
 		handleResponse({
 			statusCode: 201,
 			msg: "Departament created successfully",
-			data: newDepartament,
+			data: populated,
 			res,
 		});
 	} catch (error) {
@@ -65,11 +66,11 @@ const updateDepartamentById = async (req: Request, res: Response) => {
 				msg: "cccosto not found",
 			});
 		}
-
+		
 		// Check for a departament with the same ccost and descrition que no sea el mismo
 		const existDpto = await ModelDepartament.findOne({
 			$and: [
-				{ $or: [{ ccosto: rest.ccost }, { descripcion: rest.descripcion }] },
+				{ $or: [{ ccosto: rest.ccosto }, { descripcion: rest.descripcion }] },
 				{ _id: { $ne: id } },
 			],
 		});
@@ -78,7 +79,7 @@ const updateDepartamentById = async (req: Request, res: Response) => {
 			return handleResponse({
 				res,
 				statusCode: 404,
-				error: `Alredy exist a departamnet with the same ccosto or descripcion. ccosto:${data.ccosto} descripcion:${data.descripcion}`,
+				error: `Alredy exist a departamnet with the same ccosto or descripcion. ccosto:${existDpto.ccosto} descripcion:${existDpto.descripcion}`,
 			});
 		}
 
@@ -95,10 +96,12 @@ const updateDepartamentById = async (req: Request, res: Response) => {
 				res,
 			});
 		}
+
+		const populated = await updatedDepartament.populate('ccosto')
 		handleResponse({
 			statusCode: 201,
 			msg: "Departament updated successfully",
-			data: updatedDepartament,
+			data: populated,
 			res,
 		});
 	} catch (error) {
@@ -182,12 +185,12 @@ const deleteDepartamentById = async (req: Request, res: Response) => {
 				res,
 			});
 		}
-
+         const populated = await deletedDepartament.populate('ccosto')
 		// Use the "handleResponse" function to handle the response
 		handleResponse({
 			statusCode: 200,
 			msg: "Departament deleted successfully",
-			data: deletedDepartament,
+			data: populated,
 			res,
 		});
 	} catch (error) {

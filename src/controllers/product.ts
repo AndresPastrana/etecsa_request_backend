@@ -8,7 +8,7 @@ import { handleResponse } from "../middleware/index.js";
 // Create a new product
 const createProduct = async (req: Request, res: Response) => {
 	try {
-		const { code, name, price, availableQuantity } = matchedData(req);
+		const { code, name, price, aviableQuantity } = matchedData(req);
 
 		// Check if a product with the same code or name already exists
 		const existingProduct = await ModelProduct.findOne({
@@ -27,7 +27,7 @@ const createProduct = async (req: Request, res: Response) => {
 			code,
 			name,
 			price,
-			availableQuantity,
+			aviableQuantity,
 		});
 
 		await product.save();
@@ -161,6 +161,7 @@ const deleteProductById = async (req: Request, res: Response) => {
 		handleResponse({
 			statusCode: 200,
 			msg: "Product deleted successfully",
+			data:product,
 			res,
 		});
 	} catch (error) {

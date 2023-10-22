@@ -12,8 +12,9 @@ const SchemaUser = new Schema<IUser>(
 		lastName: { type: String, required: true },
 		departament: {
 			type: Schema.Types.ObjectId,
-			ref: "Department",
+			ref: "Departament",
 			required: false,
+			default: null
 		}, // Reference to Department
 	},
 	{
