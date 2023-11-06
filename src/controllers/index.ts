@@ -7,3 +7,4 @@ export { ProvinceController } from "./province.js";
 export { RequetsController } from "./request.js";
 export { StateController } from "./state.js";
 export { UserController } from "./user.js";
+export { BillController } from "./bills.js";

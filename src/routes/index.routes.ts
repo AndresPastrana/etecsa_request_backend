@@ -7,3 +7,4 @@ export { router as ProvinceRouter } from "./province.js";
 export { router as RequestRouter } from "./request.js";
 export { router as StateRouter } from "./state.js";
 export { router as UserRouter } from "./user.js";
+export { router as BillRouter } from "./bills.js";

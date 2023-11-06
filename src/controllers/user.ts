@@ -45,7 +45,7 @@ const createUser = async (req: Request, res: Response) => {
       lastName,
       departament,
     });
-    const populated = await newUser.populate('departament')
+    const populated = await newUser.populate("departament");
 
     handleResponse({
       statusCode: 201,
@@ -69,7 +69,7 @@ const getUsersByRole = async (req: Request, res: Response) => {
     const { role } = matchedData(req, { locations: ["query"] });
 
     const query = ModelUser.find({ role });
-    const usersByRole = await query.populate('departament')
+    const usersByRole = await query.populate("departament");
 
     if (!usersByRole || usersByRole.length === 0) {
       return handleResponse({
@@ -163,7 +163,7 @@ const updateUserById = async (req: Request, res: Response) => {
     const {
       id,
       username,
-      password = null, // we do this  to avoid updating the password
+      password, // password=null  to avoid updating the
       role,
       email,
       firstName,
@@ -172,9 +172,11 @@ const updateUserById = async (req: Request, res: Response) => {
     } = matchedData(req, { locations: ["params", "body"] });
 
     const existUser = await ModelUser.findOne({
-      $and: [{ $or: [{ username }, { departament }, { email }] }, { _id: { $ne: id } }],
-    })
-    console.log(existUser);
+      $and: [
+        { $or: [{ username }, { departament }, { email }] },
+        { _id: { $ne: id } },
+      ],
+    });
 
     if (existUser) {
       return handleResponse({
@@ -184,10 +186,19 @@ const updateUserById = async (req: Request, res: Response) => {
         msg: "email and departament must be unique",
       });
     }
+
+    const hashedPassword = await hashString(password);
+
     const updatedUser = await ModelUser.findByIdAndUpdate(
       id,
       {
-        email, firstName, lastName, departament, role, username,
+        email,
+        firstName,
+        lastName,
+        departament,
+        role,
+        username,
+        password: hashedPassword,
       },
       {
         new: true,
@@ -202,7 +213,7 @@ const updateUserById = async (req: Request, res: Response) => {
       });
     }
 
-    const populated = await updatedUser.populate('departament')
+    const populated = await updatedUser.populate("departament");
     console.log(populated);
 
     handleResponse({
@@ -235,7 +246,6 @@ const deleteUserById = async (req: Request, res: Response) => {
         res,
       });
     }
-
 
     handleResponse({
       statusCode: 200,

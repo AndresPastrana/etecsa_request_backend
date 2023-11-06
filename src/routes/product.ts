@@ -67,7 +67,7 @@ router.post(
 router.get(
 	"/",
 	[
-		...authValidations,
+		authValidations[0],
 		protectRouteByRole([UserRole.HEAD_OF_DEPARTMENT, UserRole.SPECIALIST]),
 		validateRequest,
 	],
